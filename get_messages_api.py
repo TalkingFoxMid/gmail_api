@@ -7,12 +7,15 @@ class Attachment:
         self.part_id = attachment['partId']
         self.name = re.findall('name="(.+?)"',attachment["headers"][0]["value"])
         self.mime_type = attachment["mimeType"]
-        print(attachment["body"])
         if "attachmentId" in attachment["body"]:
             self.attachment_id = attachment["body"]["attachmentId"]
         else:
             self.attachment_id = None
             print(self.mime_type)
+        if "data" in attachment["body"]:
+            self.data = attachment["body"]["data"]
+        else:
+            self.data = None
         print(attachment)
 
 
@@ -20,7 +23,8 @@ class Attachment:
 class Message:
     def __init__(self, id, service):
         message_info = get_message_info(id, service)
-        self.subject = re.findall("'name': 'Subject', 'value': '(.+?)'",str(message_info))[0]
+        self.subject = message_info["payload"]["headers"][-3]["value"]
+
         self.id = id
         self.text = message_info["snippet"]
         if "parts" in message_info["payload"]:

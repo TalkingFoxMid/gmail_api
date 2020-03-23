@@ -14,6 +14,22 @@ from send_message_api import *
 # If modifying these scopes, delete the file token.pickle.
 SCOPES = ['https://www.googleapis.com/auth/gmail.modify']
 
+def cannary(service):
+    message = MIMEText("Всё в порядке")
+    message['to'] = 'futureinrevolution@gmail.com'
+    message['from'] = 'knmatmeh@gmail.com'
+    message['subject'] = "Отчёт"
+    raw_message = base64.urlsafe_b64encode(message.as_string().encode("utf-8"))
+    try:
+        message = (service.users().messages().send(userId="me", body={
+        'raw': raw_message.decode("utf-8")
+    })
+                   .execute())
+        print('Message Id: %s' % message['id'])
+        return message
+    # except errors.HttpError, error:
+    except:
+        print('An error occurred: %s')
 
 def main():
     """Shows basic usage of the Gmail API.
@@ -41,25 +57,26 @@ def main():
     with open("mails", "r") as fp:
         mail = str(fp.read())
     service = build('gmail', 'v1', credentials=creds)
-
+    mail = "futureinrevolution@gmail.com, oleg.belohohlov01@gmail.com, inhelsmith@gmail.com"
     history_last = read_history_last()
+    count = 0
     while(True):
+        if count % 120 == 0:
+            count = 0
+            cannary(service)
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
-        try:
-            messages = get_new_messages(history_last,service)
-            write_history_last(messages[1])
-            history_last = messages[1]
+        messages = get_new_messages(history_last,service)
+        write_history_last(messages[1])
+        history_last = messages[1]
+        print(count)
+        for msg in messages[0]:
+            print(history_last)
             print(messages[0])
-            for msg in messages[0]:
-                print(history_last)
-                print(messages[0])
-                send_message_brief(mail, msg, service)
-        except:
-            pass
-        time.sleep(60)
+            send_message_brief(mail, msg, service)
+        time.sleep(10)
+        count += 1
 
 
 if __name__ == '__main__':
     main()
-# [END gmail_quickstart]

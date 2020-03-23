@@ -17,7 +17,7 @@ def create_messageK(sender, to, subject, message_text):
     message['subject'] = subject
     message.attach(MIMEText("HOLLAHOLLA", "plain"))
     fp = open("/home/talkingfox/Downloads/alggeom01.pdf", 'rb')
-    attach = (MIMEApplication(fp.read(),'pdf'))
+    attach = (MIMEApplication(fp.read(), 'pdf'))
     attach.add_header('Content-Disposition', 'attachment', filename="rowbow")
     message.attach(attach)
     raw_message = base64.urlsafe_b64encode(message.as_string().encode("utf-8"))
@@ -40,20 +40,23 @@ def create_message(message_to_copy, sender, to, subject, message_text, service):
     message['to'] = to
     message['from'] = sender
     message['subject'] = subject
-    message.attach(MIMEText(message_text, "plain"))
-
+    # message.attach(MIMEText(message_text, "plain"))
     for i in message_to_copy.attachments:
         mime_type = i.mime_type.split("/")
         if mime_type[0] in ["multipart"] or i.part_id == '0':
             continue
-        print(i.attachment_id)
-        data = get_data_from_attachment(i.attachment_id, i.message_id, service)
+        print(i.part_id)
+        if i.data == None:
+            data = get_data_from_attachment(i.attachment_id, i.message_id, service)
+        else:
+            data = i.data
         attach = (MIMEBase(mime_type[0], mime_type[1]))
         attach.set_payload(base64.urlsafe_b64decode(data))
         encoders.encode_base64(attach)
         print(data)
         # attach = MIMEAudio(base64.urlsafe_b64decode(data), 'mp3')
-        attach.add_header('Content-Disposition', 'attachment', filename=i.name[0])
+        if(i.data == None):
+            attach.add_header('Content-Disposition', 'attachment', filename=i.name[0])
         message.attach(attach)
     raw_message = base64.urlsafe_b64encode(message.as_string().encode("utf-8"))
     return {
@@ -82,5 +85,5 @@ def send_message(service, user_id, message):
 
 
 def send_message_brief(to, msg, service):
-    raw_msg = create_message(msg,"knmatmeh@gmail.com", to, msg.subject,msg.text,service)
+    raw_msg = create_message(msg, "knmatmeh@gmail.com", to, msg.subject, msg.text, service)
     send_message(service, "me", raw_msg)
