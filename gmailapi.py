@@ -37,8 +37,9 @@ def main():
         # Save the credentials for the next run
         with open('token.pickle', 'wb') as token:
             pickle.dump(creds, token)
-            #"oleg.belohohlov01@gmail.com"
-    send_to_mails = ["inhelsmith@gmail.com, futureinrevolution@gmail.com"]
+    mail = ""
+    with open("mails", "r") as fp:
+        mail = str(fp.read())
     service = build('gmail', 'v1', credentials=creds)
 
     history_last = read_history_last()
@@ -53,8 +54,7 @@ def main():
             for msg in messages[0]:
                 print(history_last)
                 print(messages[0])
-                for mail in send_to_mails:
-                    send_message_brief(mail, msg, service)
+                send_message_brief(mail, msg, service)
         except:
             pass
         time.sleep(60)
