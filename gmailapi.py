@@ -57,26 +57,28 @@ def main():
     with open("mails", "r") as fp:
         mail = str(fp.read())
     service = build('gmail', 'v1', credentials=creds)
-    mail = "futureinrevolution@gmail.com, oleg.belohohlov01@gmail.com, inhelsmith@gmail.com"
+    #mail = "futureinrevolution@gmail.com, oleg.belohohlov01@gmail.com, inhelsmith@gmail.com"
     history_last = read_history_last()
     count = 0
     while(True):
-        if count % 120 == 0:
-            count = 0
-            cannary(service)
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        messages = get_new_messages(history_last,service)
-        write_history_last(messages[1])
-        history_last = messages[1]
-        print(count)
-        for msg in messages[0]:
-            print(history_last)
-            print(messages[0])
-            send_message_brief(mail, msg, service)
-        time.sleep(10)
-        count += 1
-
+        try:
+            if creds and creds.expired and creds.refresh_token:
+                creds.refresh(Request())
+            messages = get_new_messages(history_last,service)
+            write_history_last(messages[1])
+            history_last = messages[1]
+            print(count)
+            for msg in messages[0]:
+                print(history_last)
+                print(messages[0])
+                send_message_brief(mail, msg, service)
+            if count % 120 == 0:
+                count = 0
+                cannary(service)
+            time.sleep(10)
+            count += 1
+        except:
+            continue
 
 if __name__ == '__main__':
     main()
