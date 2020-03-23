@@ -28,4 +28,5 @@ def get_message_info(id, service):
       "sizeEstimate": integer,
       "raw": bytes
     }'''
-    return service.users().messages().get(userId="me", id=id).execute()
+    a = service.users().messages().get(userId="me", id=id).execute()
+    return a
